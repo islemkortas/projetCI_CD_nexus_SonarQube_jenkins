@@ -5,34 +5,46 @@ pipeline {
         maven 'Maven'
     }
 
-    stages {
+    environment {
+        SONAR_TOKEN = credentials('sonar-token')
+        NEXUS_CREDS = credentials('nexus-credentials')
+        SONAR_HOST_URL = 'http://IP_DE_A:9000'
+        NEXUS_URL = 'http://IP_DE_B:8081/repository/maven-releases/'
+    }
 
-        // ── Étape 1 : récupérer le code source ──────────────────────
+    stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/houyemjb/my-project-sonar.git'
+                    url: 'https://github.com/islemkortas/projetCI_CD_nexus_SonarQube_jenkins.git'
             }
         }
 
-        // ── Étape 2 : compiler le projet Maven ───────────────────────
-        stage('Build') {
+        stage('Build Backend') {
             steps {
-                sh 'mvn clean compile'
-            }
-        }
-
-        // ── Étape 3 : analyse SonarQube via Maven ────────────────────
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar -Dsonar.login=${SONAR_AUTH_TOKEN}'
+                dir('backend/my-project-sonar') {
+                    sh 'mvn clean compile'
                 }
             }
         }
 
-        // ── Étape 4 : attendre le résultat du Quality Gate ───────────
+        stage('SonarQube Analysis') {
+            when {
+                expression { env.JENKINS_URL.contains('8080') || env.SONAR_TOKEN != null }
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('backend/my-project-sonar') {
+                        sh 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+
         stage('Quality Gate') {
+            when {
+                expression { env.JENKINS_URL.contains('8080') || env.SONAR_TOKEN != null }
+            }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
@@ -40,17 +52,55 @@ pipeline {
             }
         }
 
-        // ── Étape 5 : confirmation (atteinte si QG PASSED) ───────────
-        stage('Build Success') {
+        stage('Package Backend') {
             steps {
-                echo 'Code validé par SonarQube – prêt pour Nexus'
+                dir('backend/my-project-sonar') {
+                    sh 'mvn package -DskipTests'
+                }
+            }
+        }
+
+        stage('Publish to Nexus') {
+            when {
+                expression { env.JENKINS_URL.contains('8081') || env.NEXUS_CREDS != null }
+            }
+            steps {
+                script {
+                    def jarFile = findFiles(glob: 'backend/my-project-sonar/target/*.jar')[0].path
+                    def tagName = env.TAG_NAME ?: "snapshot-${env.BUILD_NUMBER}"
+                    def fileName = "backend-app-${tagName}.jar"
+                    
+                    sh """
+                        curl -v -u ${NEXUS_CREDS_USR}:${NEXUS_CREDS_PSW} \
+                        --upload-file ${jarFile} \
+                        ${NEXUS_URL}${fileName}
+                    """
+                }
             }
         }
     }
 
     post {
+        success {
+            script {
+                if (env.JENKINS_URL.contains('8080') || env.SONAR_TOKEN != null) {
+                    def tagName = "quality-passed-${env.BUILD_NUMBER}"
+                    dir('backend/my-project-sonar') {
+                        sh """
+                            git tag ${tagName}
+                            git push origin ${tagName}
+                        """
+                    }
+                    echo "Tag créé: ${tagName}"
+                }
+                echo 'Pipeline réussi !'
+            }
+        }
         failure {
-            echo 'Pipeline arrêté – Quality Gate FAILED'
+            echo 'Pipeline échoué !'
+        }
+        always {
+            cleanWs()
         }
     }
 }
