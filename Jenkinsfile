@@ -9,7 +9,7 @@ pipeline {
         SONAR_TOKEN = credentials('sonar-token')
         NEXUS_CREDS = credentials('nexus-credentials')
         SONAR_HOST_URL = 'http://IP_DE_A:9000'
-        NEXUS_URL = 'http://IP_DE_B:8081/repository/maven-releases/'
+        NEXUS_URL = 'http://IP_DE_B:8081/repository/projet_nexus_sonar/'
     }
 
     stages {
