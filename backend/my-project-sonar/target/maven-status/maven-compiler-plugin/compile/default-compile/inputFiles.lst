@@ -1,0 +1,5 @@
+/home/dev1/projet_nexus_sonar/backend/my-project-sonar/src/main/java/com/example/demo/model/User.java
+/home/dev1/projet_nexus_sonar/backend/my-project-sonar/src/main/java/com/example/demo/controller/HelloController.java
+/home/dev1/projet_nexus_sonar/backend/my-project-sonar/src/main/java/com/example/demo/DemoApplication.java
+/home/dev1/projet_nexus_sonar/backend/my-project-sonar/src/main/java/com/example/demo/config/CorsConfig.java
+/home/dev1/projet_nexus_sonar/backend/my-project-sonar/src/main/java/com/example/demo/service/HelloService.java
