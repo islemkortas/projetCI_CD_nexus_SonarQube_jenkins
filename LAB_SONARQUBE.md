@@ -66,11 +66,11 @@ Lorsque le code respecte les règles définies, le Quality Gate passe, le pipeli
 ## 8. Captures d’écran
 Ajouter dans le dépôt :
 - Pipeline réussi 
-![interface succes jenkins](images/sonar_qube/interface succes jenkins.png)
+![interface succes jenkins](images/sonar_qube/interface_succes_jenkins.png)
 - Résultat du Quality Gate dans SonarQube
-![interface succes sonarqube](images/sonar_qube/interface succes sonarqube.png)
+![interface succes sonarqube](images/sonar_qube/interface_succes_sonarqube.png)
 - Configuration Jenkins
-![configuration](images/sonar_qube/liste des tokens.png)
+![configuration](images/sonar_qube/liste_des_tokens.png)
 -Webhook SonarQube
 ![webhook](images/sonar_qube/webhook.png)
 ## 9. Conclusion
