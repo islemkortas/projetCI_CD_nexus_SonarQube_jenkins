@@ -27,20 +27,25 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            when {
-                expression { env.JOB_NAME == 'CI-CD-Pipeline' }
-            }
-            environment {
-                SONAR_TOKEN = credentials('sonarqube_token')
-            }
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    dir('backend/my-project-sonar') {
-                        sh 'mvn sonar:sonar'
-                    }
-                }
+    when {
+        expression { env.JOB_NAME == 'CI-CD-Pipeline' }
+    }
+    environment {
+        SONAR_TOKEN = credentials('sonarqube_token')
+    }
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            dir('backend/my-project-sonar') {
+                sh 'mvn test'
+                sh '''
+                    mvn sonar:sonar \
+                      -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                '''
             }
         }
+    }
+}
+        
 
         stage('Quality Gate') {
             when {
