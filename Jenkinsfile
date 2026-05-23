@@ -31,7 +31,7 @@ pipeline {
                 expression { env.JENKINS_URL.contains('8080') && false }
             }
             environment {
-                SONAR_TOKEN = credentials('sonar-token')
+                SONAR_TOKEN = credentials('sonarqube_token')
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
