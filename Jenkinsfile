@@ -61,7 +61,7 @@ pipeline {
             }
         }
 
-        stage('Publish to Nexus') {
+	stage('Publish to Nexus') {
             environment {
                 NEXUS_CREDS = credentials('nexus-credentials')
             }
