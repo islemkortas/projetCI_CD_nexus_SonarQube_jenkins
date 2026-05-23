@@ -44,7 +44,7 @@ Les plugins installés sont :
 
 Le token SonarQube est ajouté dans les credentials Jenkins.  
 Le serveur SonarQube est déclaré dans la configuration système de Jenkins.  
-Le webhook SonarQube est configuré pour permettre à Jenkins de récupérer le résultat du Quality Gate [web:127][web:116].
+Le webhook SonarQube est configuré pour permettre à Jenkins de récupérer le résultat du Quality Gate .
 
 ## 6. Pipeline CI/CD
 Le pipeline suit les étapes suivantes :
@@ -65,13 +65,14 @@ Lorsque le code respecte les règles définies, le Quality Gate passe, le pipeli
 
 ## 8. Captures d’écran
 Ajouter dans le dépôt :
-- Jenkins Dashboard
-- Pipeline réussi ou échoué
+- Pipeline réussi 
+![interface succes jenkins](images/sonar_qube/interface succes jenkins.png)
 - Résultat du Quality Gate dans SonarQube
+![interface succes sonarqube](images/sonar_qube/interface succes sonarqube.png)
 - Configuration Jenkins
-- Webhook SonarQube
-- Publication Nexus si utilisée
-
+![configuration](images/sonar_qube/liste des tokens.png)
+-Webhook SonarQube
+![webhook](images/sonar_qube/webhook.png)
 ## 9. Conclusion
 Ce projet montre comment construire une chaîne CI/CD complète et sécurisée.  
 Jenkins automatise le traitement, SonarQube contrôle la qualité du code, et Nexus garde les artéfacts publiés.
