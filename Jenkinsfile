@@ -96,8 +96,7 @@ pipeline {
                     sh """
                         cd backend/my-project-sonar
                         JAR_FILE=\$(find target -name "*.jar" -type f | head -1)
-                        FILENAME="backend-app-\${JOB_BASE_NAME}-\${BUILD_NUMBER}.jar"
-                        
+			FILENAME="com/example/my-project-sonar/1.0.0/my-project-sonar-1.0.0.jar"                        
                         curl -v -u ${NEXUS_CREDS_USR}:${NEXUS_CREDS_PSW} \
                         --upload-file \${JAR_FILE} \
                         ${NEXUS_URL}\${FILENAME}
