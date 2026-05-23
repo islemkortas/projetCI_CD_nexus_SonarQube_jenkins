@@ -71,7 +71,7 @@ Ajouter dans le dépôt :
 ![interface succes sonarqube](images/sonar_qube/interface_succes_sonarqube.png)
 - Configuration Jenkins
 ![configuration](images/sonar_qube/liste_des_tokens.png)
--Webhook SonarQube
+- Webhook SonarQube
 ![webhook](images/sonar_qube/webhook.png)
 ## 9. Conclusion
 Ce projet montre comment construire une chaîne CI/CD complète et sécurisée.  
