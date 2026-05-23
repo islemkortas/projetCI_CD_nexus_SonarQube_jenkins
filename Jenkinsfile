@@ -59,22 +59,25 @@ pipeline {
         }
 
         stage('Create Tag') {
-            when {
-                expression { env.JOB_NAME == 'CI-CD-Pipeline' }
+    when {
+        expression { env.JOB_NAME == 'CI-CD-Pipeline' }
+    }
+    environment {
+        GIT_TOKEN = credentials('github-token')
+    }
+    steps {
+        script {
+            def tagName = "quality-passed-${env.BUILD_NUMBER}"
+            dir('backend/my-project-sonar') {
+                sh """
+                    git tag ${tagName}
+                    git push https://${GIT_TOKEN}@github.com/islemkortas/projetCI_CD_nexus_SonarQube_jenkins.git ${tagName}
+                """
             }
-            steps {
-                script {
-                    def tagName = "quality-passed-${env.BUILD_NUMBER}"
-                    dir('backend/my-project-sonar') {
-                        sh """
-                            git tag ${tagName}
-                            git push origin ${tagName}
-                        """
-                    }
-                    echo "Tag cree: ${tagName}"
-                }
-            }
+            echo "Tag cree: ${tagName}"
         }
+    }
+}
         stage('Package Backend') {
             steps {
                 dir('backend/my-project-sonar') {
