@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         SONAR_HOST_URL = 'http://192.168.56.20:9000'
-        NEXUS_URL = 'http://192.168.56.20:8081/repository/projet_nexus_sonar/'
+        NEXUS_URL = 'http://localhost:8081/repository/projet_nexus_sonar/'
     }
 
     stages {
@@ -28,10 +28,10 @@ pipeline {
 
         stage('SonarQube Analysis') {
             when {
-                expression { env.JENKINS_URL.contains('8080') && false }
+                expression { env.JOB_NAME == 'CI-CD-Pipeline' }
             }
             environment {
-                SONAR_TOKEN = credentials('sonarqube_token')
+                SONAR_TOKEN = credentials('sonar-token')
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -44,11 +44,29 @@ pipeline {
 
         stage('Quality Gate') {
             when {
-                expression { env.JENKINS_URL.contains('8080') && false }
+                expression { env.JOB_NAME == 'CI-CD-Pipeline' }
             }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Create Tag') {
+            when {
+                expression { env.JOB_NAME == 'CI-CD-Pipeline' }
+            }
+            steps {
+                script {
+                    def tagName = "quality-passed-${env.BUILD_NUMBER}"
+                    dir('backend/my-project-sonar') {
+                        sh """
+                            git tag ${tagName}
+                            git push origin ${tagName}
+                        """
+                    }
+                    echo "Tag cree: ${tagName}"
                 }
             }
         }
@@ -61,20 +79,23 @@ pipeline {
             }
         }
 
-	stage('Publish to Nexus') {
+        stage('Publish to Nexus') {
+            when {
+                expression { env.JOB_NAME == 'nexus-publisher' }
+            }
             environment {
                 NEXUS_CREDS = credentials('nexus-credentials')
             }
             steps {
                 script {
-                    def jarFile = findFiles(glob: 'backend/my-project-sonar/target/*.jar')[0].path
-                    def tagName = env.TAG_NAME ?: "snapshot-${env.BUILD_NUMBER}"
-                    def fileName = "backend-app-${tagName}.jar"
-                    
                     sh """
+                        cd backend/my-project-sonar
+                        JAR_FILE=\$(find target -name "*.jar" -type f | head -1)
+                        FILENAME="backend-app-\${JOB_BASE_NAME}-\${BUILD_NUMBER}.jar"
+                        
                         curl -v -u ${NEXUS_CREDS_USR}:${NEXUS_CREDS_PSW} \
-                        --upload-file ${jarFile} \
-                        ${NEXUS_URL}${fileName}
+                        --upload-file \${JAR_FILE} \
+                        ${NEXUS_URL}\${FILENAME}
                     """
                 }
             }
@@ -83,10 +104,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline réussi !'
+            echo 'Pipeline reussi'
         }
         failure {
-            echo 'Pipeline échoué !'
+            echo 'Pipeline echoue'
         }
         always {
             cleanWs()
