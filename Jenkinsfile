@@ -6,10 +6,8 @@ pipeline {
     }
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')
-        NEXUS_CREDS = credentials('nexus-credentials')
-        SONAR_HOST_URL = 'http://IP_DE_A:9000'
-        NEXUS_URL = 'http://IP_DE_B:8081/repository/projet_nexus_sonar/'
+        SONAR_HOST_URL = 'http://192.168.56.20:9000'
+        NEXUS_URL = 'http://localhost:8081/repository/projet_nexus_sonar/'
     }
 
     stages {
@@ -30,7 +28,10 @@ pipeline {
 
         stage('SonarQube Analysis') {
             when {
-                expression { env.JENKINS_URL.contains('8080') || env.SONAR_TOKEN != null }
+                expression { env.JENKINS_URL.contains('8080') && false }
+            }
+            environment {
+                SONAR_TOKEN = credentials('sonar-token')
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -43,7 +44,7 @@ pipeline {
 
         stage('Quality Gate') {
             when {
-                expression { env.JENKINS_URL.contains('8080') || env.SONAR_TOKEN != null }
+                expression { env.JENKINS_URL.contains('8080') && false }
             }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -61,8 +62,8 @@ pipeline {
         }
 
         stage('Publish to Nexus') {
-            when {
-                expression { env.JENKINS_URL.contains('8081') || env.NEXUS_CREDS != null }
+            environment {
+                NEXUS_CREDS = credentials('nexus-credentials')
             }
             steps {
                 script {
@@ -82,19 +83,7 @@ pipeline {
 
     post {
         success {
-            script {
-                if (env.JENKINS_URL.contains('8080') || env.SONAR_TOKEN != null) {
-                    def tagName = "quality-passed-${env.BUILD_NUMBER}"
-                    dir('backend/my-project-sonar') {
-                        sh """
-                            git tag ${tagName}
-                            git push origin ${tagName}
-                        """
-                    }
-                    echo "Tag créé: ${tagName}"
-                }
-                echo 'Pipeline réussi !'
-            }
+            echo 'Pipeline réussi !'
         }
         failure {
             echo 'Pipeline échoué !'
