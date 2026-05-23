@@ -75,6 +75,13 @@ pipeline {
                 }
             }
         }
+        stage('Package Backend') {
+            steps {
+                dir('backend/my-project-sonar') {
+                    sh 'mvn package -DskipTests'
+                }
+            }
+        }
 
 
         stage('Publish to Nexus') {
