@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         SONAR_HOST_URL = 'http://192.168.56.20:9000'
-        NEXUS_URL = 'http://localhost:8081/repository/projet_nexus_sonar/'
+        NEXUS_URL = 'http://192.168.56.20:8081/repository/projet_nexus_sonar/'
     }
 
     stages {
