@@ -31,7 +31,7 @@ pipeline {
                 expression { env.JOB_NAME == 'CI-CD-Pipeline' }
             }
             environment {
-                SONAR_TOKEN = credentials('sonar-token')
+                SONAR_TOKEN = credentials('sonarqube_token')
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
